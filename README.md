@@ -9,7 +9,7 @@ This script is designed to help plan long-term finances. By adjusting the parame
 
 The script simulates your financial life from the year you start earning (2025) until the year you pass away (2102). It takes into account your income, expenses, and financial goals such as buying an aircraft, wedding, children, home, retirement, and mom's yacht.
 
-## How to Use
+## Code Structure
 
 1. **Define Constants**: Set your birth year, starting year, and death year. Also, set your starting income, year-over-year income growth, and year-over-year investment return.
 
