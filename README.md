@@ -2,6 +2,7 @@
 
 This script is designed to help plan long-term finances. By adjusting the parameters, you can see if you meet your financial goals.
 
+## Example Results
 ![Sample Graph](sample_graph.png)
 
 ## Overview
