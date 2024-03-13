@@ -13,7 +13,7 @@ BIRTH_YEAR = 2002
 STARTING_YEAR = 2025
 DIE_YEAR = 2102
 
-STARTING_INCOME = 80000
+STARTING_INCOME = 90000
 YOY_INCOME_GROWTH = 1.02
 YOY_INVESTMENT_RETURN = 1.07
 
@@ -21,12 +21,12 @@ YOY_INVESTMENT_RETURN = 1.07
 
 GOALS = {
     #"Aircraft": {"age": 33, "total_value": 500000, "down_payment": 100000, "monthly_payment": 3200, "loan_term": 20},
-    "Wedding": {"age": 30, "total_value": 10000, "down_payment": 10000, "monthly_payment": 0, "loan_term": 0},
-    "Children": {"age": 37, "total_value": 1080000, "down_payment": 0, "monthly_payment": 5000, "loan_term": 18},
+    "Wedding": {"age": 29, "total_value": 10000, "down_payment": 10000, "monthly_payment": 0, "loan_term": 0},
+    "Children": {"age": 32, "total_value": 1080000, "down_payment": 0, "monthly_payment": 5000, "loan_term": 18},
     "Home": {"age": 35, "total_value": 1000000, "down_payment": 100000, "monthly_payment": 3000, "loan_term": 30},
     "Retirement": {"age": 65, "total_value": 2000000, "down_payment": 0, "monthly_payment": 2000000/(35*12), "loan_term": 0},
-    #"Mom's Yacht": {"age": 32, "total_value": 300000, "down_payment": 60000, "monthly_payment": 2500, "loan_term": 20},
-    "Kid's College": {"age": 40, "total_value": 1000000, "down_payment": 0, "monthly_payment": 5000, "loan_term": 4},
+    #"Mom's Yacht": {"age": 35, "total_value": 100000, "down_payment": 20000, "monthly_payment": 833, "loan_term": 20},
+    "Kids' College": {"age": 40, "total_value": 1000000, "down_payment": 0, "monthly_payment": 5000, "loan_term": 4},
 }
 
 # Define monthly expenses at each stage of life
@@ -117,12 +117,10 @@ class Finance:
         
         # Tax brackets
         
-        brackets = [9875, 40125, 85525, 163300, 207350, 518400]
+        brackets = [0, 11001, 44726, 95376, 182101, 231251, 578126]
         federal_rates = [0.10, 0.12, 0.22, 0.24, 0.32, 0.35, 0.37]
-        california_brackets = [8544, 20255, 31969, 44377, 56085, 286492, 343788, 572980, 1000000]
-        california_rates = [0.01, 0.02, 0.04, 0.06, 0.08, 0.093, 0.103, 0.113, 0.123]
         
-        # Calculate tax
+        # Calculate federal tax
         
         tax = 0
         
@@ -130,10 +128,14 @@ class Finance:
             if gross_income > bracket:
                 tax = federal_rates[i] * gross_income
 
+        california_brackets = [0, 10413, 24685, 38960, 54082, 68351, 349138, 418961, 698272]
+        california_rates = [0.01, 0.02, 0.04, 0.06, 0.08, 0.093, 0.103, 0.113, 0.123]
+        california_flat_taxes = [0, 104.12, 389.56, 960.56, 1867.88, 3009.40, 29122.59, 36314.46, 67876.49]
+
         california_tax = 0
         for i, bracket in enumerate(california_brackets):
             if gross_income > bracket:
-                california_tax = california_rates[i] * gross_income
+                california_tax = california_flat_taxes[i] + california_rates[i]*(gross_income - bracket)
         
         tax += california_tax
         return tax
@@ -172,11 +174,17 @@ class Finance:
         # Create subplots
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
         
-        # Plot balance
-        ax1.plot(range(STARTING_YEAR, DIE_YEAR), self.balances, color="green" if min(self.balances) > 0 else "red", label="Balance")
+        # Plot balance as log graph
+        import matplotlib.ticker as ticker
+
+        ax1.semilogy(range(STARTING_YEAR, DIE_YEAR), self.balances, color="green" if min(self.balances) > 0 else "red", label="Balance")
         ax1.set_ylabel("Balance ($)")
         ax1.set_title("Total Balance Over Time")
-        
+
+        # Add more y-axis ticks and labels for ax1
+        ax1.yaxis.set_major_locator(ticker.LogLocator(base=10, numticks=10))
+        ax1.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: "{:,}".format(int(x))))
+
         # Plot income, expenses, and savings
         ax2.plot(range(STARTING_YEAR, DIE_YEAR), self.expense_history, color="orange", label="Expenses")
         ax2.plot(range(STARTING_YEAR, DIE_YEAR), self.income_history, color="blue", label="Income")
@@ -194,11 +202,9 @@ class Finance:
             ax2.text(self.financial_goals[goal]["age"] + BIRTH_YEAR + .25, min(self.saving_history), goal, rotation=90, fontsize=10)
         
         # Display y-axis labels without scientific notation
-        ax1.ticklabel_format(style='plain', axis='y')
         ax2.ticklabel_format(style='plain', axis='y')
         
         # Display y-axis labels with commas
-        ax1.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
         ax2.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
         
         # Add age labels to x-axis
